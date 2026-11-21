@@ -1,24 +1,24 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './lib/AuthContext';
-import { ThemeProvider } from './lib/ThemeContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import Layout from './components/Layout';
-import Login from './pages/Login';
-import SignUp from './pages/SignUp';
-import Dashboard from './pages/Dashboard';
-import Customers from './pages/Customers';
-import FollowUps from './pages/FollowUps';
-import Messages from './pages/Messages';
-import Campaigns from './pages/Campaigns';
-import Settings from './pages/Settings';
-import NotFound from './pages/NotFound';
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./lib/AuthContext";
+import { ThemeProvider } from "./lib/ThemeContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Layout from "./components/Layout";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
+import Dashboard from "./pages/Dashboard";
+import Customers from "./pages/Customers";
+import FollowUps from "./pages/FollowUps";
+import Messages from "./pages/Messages";
+import Campaigns from "./pages/Campaigns";
+import Settings from "./pages/Settings";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <BrowserRouter>
+        <BrowserRouter basename="/GrowthDesk">
           <Routes>
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
