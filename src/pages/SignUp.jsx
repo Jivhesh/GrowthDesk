@@ -55,7 +55,9 @@ export default function SignUp() {
         businessName: businessName.trim(),
         businessType
       });
-      if (data?.session) {
+      if (data?.user?.identities && data.user.identities.length === 0) {
+        setErrorMsg('An account with this email already exists. Please sign in instead.');
+      } else if (data?.session) {
         navigate('/');
       } else {
         setSuccessMsg('Account created! Please check your email to confirm your account, then sign in.');

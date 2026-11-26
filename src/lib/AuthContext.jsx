@@ -108,9 +108,10 @@ export function AuthProvider({ children }) {
     if (!supabase) throw new Error('Supabase client is not configured');
     setAuthError(null);
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: email.trim(),
       password,
       options: {
+        emailRedirectTo: window.location.origin + import.meta.env.BASE_URL,
         data: {
           business_name: businessName,
           business_type: businessType || 'General'

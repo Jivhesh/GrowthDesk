@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext';
+import { supabase } from '../lib/supabaseClient';
 
 export default function Login() {
   const { signIn, user, session, isConfigured } = useAuth();
@@ -18,6 +19,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [infoMsg, setInfoMsg] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,12 +29,35 @@ export default function Login() {
     }
     setLoading(true);
     setErrorMsg(null);
+    setInfoMsg(null);
     try {
       await signIn({ email, password });
       navigate(from, { replace: true });
     } catch (err) {
       console.error('Login error:', err);
       setErrorMsg(err.message || 'Failed to log in. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!email.trim()) {
+      setErrorMsg('Enter your email address above first, then click Forgot password.');
+      return;
+    }
+    if (!supabase) return;
+    setLoading(true);
+    setErrorMsg(null);
+    setInfoMsg(null);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: window.location.origin + import.meta.env.BASE_URL
+      });
+      if (error) throw error;
+      setInfoMsg('Password reset link sent! Check your email inbox.');
+    } catch (err) {
+      setErrorMsg(err.message || 'Failed to send password reset email.');
     } finally {
       setLoading(false);
     }
@@ -56,6 +81,12 @@ export default function Login() {
         {errorMsg && (
           <div className="alert alert-error" role="alert">
             {errorMsg}
+          </div>
+        )}
+
+        {infoMsg && (
+          <div className="alert alert-success" role="status">
+            {infoMsg}
           </div>
         )}
 
@@ -95,6 +126,24 @@ export default function Login() {
 
         <div className="auth-footer">
           <p>
+            <button
+              type="button"
+              onClick={handleResetPassword}
+              disabled={loading}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--primary)',
+                cursor: 'pointer',
+                padding: 0,
+                fontSize: 'inherit',
+                textDecoration: 'underline'
+              }}
+            >
+              Forgot password?
+            </button>
+          </p>
+          <p style={{ marginTop: 8 }}>
             Don't have an account yet? <Link to="/signup">Create an account</Link>
           </p>
         </div>
