@@ -3,7 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext';
 
 export default function ProtectedRoute({ children }) {
-  const { user, loading, isConfigured } = useAuth();
+  const { user, session, loading, isConfigured } = useAuth();
   const location = useLocation();
 
   if (!isConfigured) {
@@ -26,7 +26,7 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
-  if (!user) {
+  if (!user || !session) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

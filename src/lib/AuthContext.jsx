@@ -118,10 +118,10 @@ export function AuthProvider({ children }) {
       }
     });
     if (error) throw error;
-    if (data?.user) {
-      setUser(data.user);
+    if (data?.session?.user) {
+      setUser(data.session.user);
       setSession(data.session);
-      fetchBusiness(data.user.id, data.user.user_metadata);
+      fetchBusiness(data.session.user.id, data.session.user.user_metadata);
     }
     return data;
   };

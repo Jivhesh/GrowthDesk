@@ -123,12 +123,18 @@ export default function Customers() {
     setActionLoading(true);
     setErrorMsg(null);
     try {
+      const { data: { session: activeSession } } = await supabase.auth.getSession();
+      if (!activeSession?.user) {
+        throw new Error('Your session has expired. Please log out and sign in again.');
+      }
+      const activeUserId = activeSession.user.id;
+
       if (editingCustomer) {
         const { data, error } = await supabase
           .from('customers')
           .update({
             ...formData,
-            business_id: user.id
+            business_id: activeUserId
           })
           .eq('id', editingCustomer.id)
           .select()
@@ -141,7 +147,7 @@ export default function Customers() {
           .from('customers')
           .insert({
             ...formData,
-            business_id: user.id
+            business_id: activeUserId
           })
           .select()
           .single();
