@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext';
 
 export default function Login() {
-  const { signIn, isConfigured } = useAuth();
+  const { signIn, user, session, isConfigured } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
+
+  useEffect(() => {
+    if (user && session) {
+      navigate(from, { replace: true });
+    }
+  }, [user, session, from, navigate]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

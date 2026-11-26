@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext';
 
@@ -13,7 +13,7 @@ const BUSINESS_TYPES = [
 ];
 
 export default function SignUp() {
-  const { signUp, isConfigured } = useAuth();
+  const { signUp, user, session, isConfigured } = useAuth();
   const navigate = useNavigate();
 
   const [businessName, setBusinessName] = useState('');
@@ -22,6 +22,13 @@ export default function SignUp() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
+
+  useEffect(() => {
+    if (user && session) {
+      navigate('/', { replace: true });
+    }
+  }, [user, session, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,14 +47,19 @@ export default function SignUp() {
 
     setLoading(true);
     setErrorMsg(null);
+    setSuccessMsg(null);
     try {
-      await signUp({
+      const data = await signUp({
         email: email.trim(),
         password,
         businessName: businessName.trim(),
         businessType
       });
-      navigate('/');
+      if (data?.session) {
+        navigate('/');
+      } else {
+        setSuccessMsg('Account created! Please check your email to confirm your account, then sign in.');
+      }
     } catch (err) {
       console.error('Sign up error:', err);
       setErrorMsg(err.message || 'Failed to sign up. Please try again.');
@@ -74,6 +86,12 @@ export default function SignUp() {
         {errorMsg && (
           <div className="alert alert-error" role="alert">
             {errorMsg}
+          </div>
+        )}
+
+        {successMsg && (
+          <div className="alert alert-success" role="status">
+            {successMsg}
           </div>
         )}
 

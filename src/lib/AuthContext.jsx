@@ -130,10 +130,15 @@ export function AuthProvider({ children }) {
     if (!supabase) throw new Error('Supabase client is not configured');
     setAuthError(null);
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: email.trim(),
       password
     });
     if (error) throw error;
+    if (data?.session?.user) {
+      setSession(data.session);
+      setUser(data.session.user);
+      fetchBusiness(data.session.user.id, data.session.user.user_metadata);
+    }
     return data;
   };
 
