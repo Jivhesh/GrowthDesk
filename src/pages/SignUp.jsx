@@ -20,6 +20,7 @@ export default function SignUp() {
   const [businessType, setBusinessType] = useState('Salon / Spa');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
@@ -64,7 +65,12 @@ export default function SignUp() {
       }
     } catch (err) {
       console.error('Sign up error:', err);
-      setErrorMsg(err.message || 'Failed to sign up. Please try again.');
+      const msg = err.message || 'Failed to sign up. Please try again.';
+      if (msg.toLowerCase().includes('rate limit')) {
+        setErrorMsg('Email rate limit exceeded (Supabase free tier allows 2 auth emails/hour). Wait a bit, or turn off "Confirm email" in Supabase Dashboard → Authentication → Providers → Email.');
+      } else {
+        setErrorMsg(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -143,16 +149,27 @@ export default function SignUp() {
 
           <div className="form-group">
             <label htmlFor="signup-password">Password (min 6 chars) *</label>
-            <input
-              id="signup-password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={loading}
-              autoComplete="new-password"
-            />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                id="signup-password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+                autoComplete="new-password"
+                style={{ flex: 1 }}
+              />
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setShowPassword((s) => !s)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>

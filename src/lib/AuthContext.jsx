@@ -9,6 +9,7 @@ export function AuthProvider({ children }) {
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
   const fetchingBusinessRef = useRef(false);
 
   const fetchBusiness = async (userId, userMetadata = null) => {
@@ -85,7 +86,10 @@ export function AuthProvider({ children }) {
     // Listen for auth state changes (sign-in, token refresh, email confirmation redirect)
     const {
       data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    } = supabase.auth.onAuthStateChange((event, newSession) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setPasswordRecovery(true);
+      }
       setSession(newSession);
       setUser(newSession?.user ?? null);
       setLoading(false);
@@ -152,6 +156,14 @@ export function AuthProvider({ children }) {
     setBusiness(null);
   };
 
+  const updatePassword = async (newPassword) => {
+    if (!supabase) throw new Error('Supabase client is not configured');
+    const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+    setPasswordRecovery(false);
+    return data;
+  };
+
   const refreshBusiness = async () => {
     if (user?.id) {
       await fetchBusiness(user.id, user.user_metadata);
@@ -164,9 +176,11 @@ export function AuthProvider({ children }) {
     business,
     loading,
     authError,
+    passwordRecovery,
     signUp,
     signIn,
     signOut,
+    updatePassword,
     refreshBusiness,
     isConfigured: isSupabaseConfigured
   };
